@@ -1,0 +1,7 @@
+{
+    "name": "zbigniewzolnierowicz/wordie_server",
+    "description": "API server for my school project",
+    "require": {
+        "firebase/php-jwt": "^5.0"
+    }
+}
