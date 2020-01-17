@@ -18,11 +18,11 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     "username": <username>
     "password": <hashed password>
 */
-// Server checks if the user is in the database.
+// Server checks if the user is in the database and if he is active.
 $isUserInDatabaseQuery = "SELECT `id` FROM `user` WHERE `name` = '" . $username . "'";
 $data = mysqli_query($db, $isUserInDatabaseQuery);
 $row = mysqli_fetch_assoc($data);
-if ($row) {
+if ($row['is_active'] == 1) {
 // If it is:
     // Check if the password the user sent matches the hashed password stored in the database
     $isUserPasswordSameAsHashedQuery = "SELECT `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
@@ -40,12 +40,11 @@ if ($row) {
         } else {
             throw new Exception("could_not_create_session");
         }
-        // 3. Mark the user as active in the database
     } else {
         throw new Exception("password_not_match");
     }
 } else {
-    throw new Exception("user_not_in_database");
+    throw new Exception("user_not_in_database_or_inactive");
 }
 } catch (\Throwable $th) {
     http_response_code(401);
