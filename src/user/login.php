@@ -19,7 +19,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     "password": <hashed password>
 */
 // Server checks if the user is in the database and if he is active.
-$isUserInDatabaseQuery = "SELECT `id` FROM `user` WHERE `name` = '" . $username . "'";
+$isUserInDatabaseQuery = "SELECT `id`, `is_active` FROM `user` WHERE `name` = '" . $username . "'";
 $data = mysqli_query($db, $isUserInDatabaseQuery);
 $row = mysqli_fetch_assoc($data);
 if ($row['is_active'] == 1) {
