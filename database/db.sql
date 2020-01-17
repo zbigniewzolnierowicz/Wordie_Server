@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 4.9.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 04, 2019 at 06:53 PM
--- Server version: 10.4.8-MariaDB
--- PHP Version: 7.3.11
+-- Generation Time: Jan 17, 2020 at 10:04 PM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tester`
+-- Database: `wordie`
 --
 
 -- --------------------------------------------------------
@@ -54,9 +54,9 @@ CREATE TABLE `translatedword` (
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
   `password_hash` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
-  `role` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL
+  `role` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;
 
 -- --------------------------------------------------------
@@ -68,6 +68,14 @@ CREATE TABLE `user` (
 CREATE TABLE `userrole` (
   `role` varchar(255) COLLATE utf8mb4_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;
+
+--
+-- Dumping data for table `userrole`
+--
+
+INSERT INTO `userrole` (`role`) VALUES
+('admin'),
+('user');
 
 -- --------------------------------------------------------
 
