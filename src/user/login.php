@@ -5,7 +5,7 @@ require_once "../includes/is_cors.php";
 require_once "../includes/database_connection.php";
 try {
 // Prepare the response associative array
-$response;
+$response = [];
 // Server receives a POST request from the user
 if (isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];

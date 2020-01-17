@@ -18,10 +18,7 @@ try {
                 $params["secure"], $params["httponly"]
             );
         }
-        $response = array(
-            "response" => "initial",
-            "description" => "Initial"
-        );
+        $response = [];
         // Finally, destroy the session.
         session_destroy();
 
