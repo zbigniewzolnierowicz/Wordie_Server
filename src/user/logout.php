@@ -26,11 +26,11 @@ try {
 
     // Check if the session is destroyed
     if (session_id()) {
-        throw new Exception("Could not log out.", 1);
+        throw new Exception("session_not_destroyed");
     } else {
         http_response_code(200);
         $response['response'] = "log_out_success";
-        $response['description'] = "You have succesfully logged out.";
+        $response['description'] = "log_out_success";
     }
 } catch (\Throwable $th) {
     http_response_code(500);
