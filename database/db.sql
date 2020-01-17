@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 17, 2020 at 10:04 PM
+-- Generation Time: Jan 17, 2020 at 10:22 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.1
 
@@ -53,7 +53,8 @@ CREATE TABLE `translatedword` (
 
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
+  `display_name` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `password_hash` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
   `role` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT 'user'
@@ -159,7 +160,7 @@ ALTER TABLE `translatedword`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `word`
