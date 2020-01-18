@@ -22,10 +22,10 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
 $isUserInDatabaseQuery = "SELECT `id`, `is_active` FROM `user` WHERE `name` = '" . $username . "'";
 $data = mysqli_query($db, $isUserInDatabaseQuery);
 $row = mysqli_fetch_assoc($data);
-if ($row['is_active'] == 1) {
+if ($row && $row['is_active'] == 1) {
 // If it is:
     // Check if the password the user sent matches the hashed password stored in the database
-    $isUserPasswordSameAsHashedQuery = "SELECT `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
+    $isUserPasswordSameAsHashedQuery = "SELECT `id`, `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
     $data = mysqli_query($db, $isUserPasswordSameAsHashedQuery);
     $row = mysqli_fetch_assoc($data);
     if (password_verify($password, $row['password_hash'])) {
@@ -36,7 +36,12 @@ if ($row['is_active'] == 1) {
         // 2. Respond with a 200 code and with the session ID as a cookie
         http_response_code(200); // Mark the response as a success
         if (session_id()) {
-            $response["response"] = "log_in_success";
+            $sessionSaverQuery = "INSERT INTO `sessions`(`session_id`, `user_id`) VALUES ('" . session_id() . "','$row[id]')";
+            if (!mysqli_query($db, $sessionSaverQuery)) {
+                throw new Exception("could_not_update_session_table");
+            } else {
+                $response["response"] = "log_in_success";
+            }
         } else {
             throw new Exception("could_not_create_session");
         }
