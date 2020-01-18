@@ -29,7 +29,6 @@ try {
         throw new Exception("table_creation_failed");
     }
     $response['response'] = "sign_up_success";
-    // $response['description'] = $newAccountQuery;
 } catch (\Throwable $th) {
     http_response_code(401);
     $response['response'] = "sign_up_fail";
