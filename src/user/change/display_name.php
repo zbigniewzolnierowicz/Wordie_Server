@@ -24,7 +24,7 @@ try {
         throw new Exception("wrong_user_or_not_logged_in");
     }
 } catch (\Throwable $th) {
-    http_response_code(401);
+    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "display_name_change_fail";
     $response['description'] = $th->getMessage();
 } finally {

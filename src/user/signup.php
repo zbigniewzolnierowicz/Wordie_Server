@@ -31,7 +31,7 @@ try {
     }
     $response['response'] = "sign_up_success";
 } catch (\Throwable $th) {
-    http_response_code(401);
+    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "sign_up_fail";
     $response['description'] = $th->getMessage();
 } finally {

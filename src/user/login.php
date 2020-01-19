@@ -57,11 +57,7 @@ if ($row && $row['is_active'] == 1) {
     throw new Exception("user_not_in_database_or_inactive");
 }
 } catch (\Throwable $th) {
-    if ($_SERVER['REQUEST_METHOD'] === "OPTIONS") {
-        http_response_code(200);
-    } else {
-        http_response_code(401);
-    }
+    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 401);
     $response['response'] = "log_in_fail";
     $response['description'] = $th->getMessage();
     $response['code_line'] = $th->getLine();

@@ -25,7 +25,7 @@ try {
         throw new Exception("not_logged_in");
     }
 } catch (\Throwable $th) {
-    http_response_code(500);
+    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "log_out_fail";
     $response['description'] = $th->getMessage();
 } finally {
