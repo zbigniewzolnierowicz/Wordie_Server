@@ -3,13 +3,14 @@
 require_once "../includes/is_json.php";
 require_once "../includes/is_cors.php";
 require_once "../includes/database_connection.php";
-try {
 // Prepare the response associative array
 $response = [];
+$postData = json_decode(file_get_contents("php://input"), true);
+try {
 // Server receives a POST request from the user
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+if (isset($postData['username']) && isset($postData['password'])) {
+    $username = $postData['username'];
+    $password = $postData['password'];
 } else {
     throw new Exception("no_username_or_password");
 }
@@ -25,7 +26,7 @@ $row = mysqli_fetch_assoc($data);
 if ($row && $row['is_active'] == 1) {
 // If it is:
     // Check if the password the user sent matches the hashed password stored in the database
-    $isUserPasswordSameAsHashedQuery = "SELECT `id`, `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
+    $isUserPasswordSameAsHashedQuery = "SELECT `id`,`name`, `display_name`, `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
     $data = mysqli_query($db, $isUserPasswordSameAsHashedQuery);
     $row = mysqli_fetch_assoc($data);
     if (password_verify($password, $row['password_hash'])) {
@@ -41,6 +42,10 @@ if ($row && $row['is_active'] == 1) {
                 throw new Exception("could_not_update_session_table");
             } else {
                 $response["response"] = "log_in_success";
+                $response['user_info'] = [
+                    'username' => $row['name'],
+                    'display_name' => $row['display_name']
+                ];
             }
         } else {
             throw new Exception("could_not_create_session");
@@ -52,9 +57,14 @@ if ($row && $row['is_active'] == 1) {
     throw new Exception("user_not_in_database_or_inactive");
 }
 } catch (\Throwable $th) {
-    http_response_code(401);
+    if ($_SERVER['REQUEST_METHOD'] === "OPTIONS") {
+        http_response_code(200);
+    } else {
+        http_response_code(401);
+    }
     $response['response'] = "log_in_fail";
     $response['description'] = $th->getMessage();
+    $response['code_line'] = $th->getLine();
 } finally {
     echo json_encode($response);
 }
