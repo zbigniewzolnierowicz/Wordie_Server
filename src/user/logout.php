@@ -18,7 +18,6 @@ try {
             } else {
                 http_response_code(200);
                 $response['response'] = "log_out_success";
-                $response['description'] = "log_out_success";
             }
         }
     } else {
