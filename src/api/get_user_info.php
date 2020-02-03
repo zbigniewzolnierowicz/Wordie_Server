@@ -3,6 +3,7 @@
 header('Content-Type: application/json');
 require_once "../includes/is_cors.php";
 require_once "../includes/database_connection.php";
+http_response_code(200);
 
 try {
     $response = [];
@@ -16,7 +17,6 @@ try {
         $response['user_info'] = $data;
     }
 } catch (\Throwable $th) {
-    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "get_user_info_fail";
     $response['description'] = $th->getMessage();
 } finally {

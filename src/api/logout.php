@@ -2,6 +2,7 @@
 require_once "../includes/is_json.php";
 require_once "../includes/is_cors.php";
 require_once "../includes/database_connection.php";
+http_response_code(200);
 try {
     session_start();
     if (session_id() != '') { // Check if the session exists
@@ -16,7 +17,6 @@ try {
             if (session_id()) {
                 throw new Exception("session_not_destroyed");
             } else {
-                http_response_code(200);
                 $response['response'] = "log_out_success";
             }
         }
@@ -24,7 +24,6 @@ try {
         throw new Exception("not_logged_in");
     }
 } catch (\Throwable $th) {
-    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "log_out_fail";
     $response['description'] = $th->getMessage();
 } finally {

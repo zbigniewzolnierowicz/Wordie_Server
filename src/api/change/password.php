@@ -6,6 +6,7 @@ require_once "../../includes/database_connection.php";
 
 $response;
 $postData = json_decode(file_get_contents("php://input"), true);
+http_response_code(200);
 try {
     session_start();
     if (empty($postData['old_password'])) {
@@ -33,7 +34,6 @@ try {
         throw new Exception("wrong_user_or_not_logged_in");
     }
 } catch (\Throwable $th) {
-    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "password_change_fail";
     $response['description'] = $updatePasswordNameQuery;
 } finally {
