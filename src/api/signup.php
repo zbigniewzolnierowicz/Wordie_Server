@@ -6,6 +6,7 @@ require_once "../includes/database_connection.php";
 
 $response;
 $postData = json_decode(file_get_contents("php://input"), true);
+http_response_code(200);
 try {
     // Check if the user already exists
     $alreadyExistsQuery = "SELECT `id` FROM `user` WHERE `name` = '" . $postData['username'] . "'";
@@ -31,7 +32,6 @@ try {
     }
     $response['response'] = "sign_up_success";
 } catch (\Throwable $th) {
-    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 500);
     $response['response'] = "sign_up_fail";
     $response['description'] = $th->getMessage();
 } finally {

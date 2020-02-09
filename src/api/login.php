@@ -3,6 +3,7 @@
 require_once "../includes/is_json.php";
 require_once "../includes/is_cors.php";
 require_once "../includes/database_connection.php";
+http_response_code(200);
 // Prepare the response associative array
 $response = [];
 $postData = json_decode(file_get_contents("php://input"), true);
@@ -34,8 +35,7 @@ if ($row && $row['is_active'] == 1) {
         // 1. Start a new session
         session_start();
         // 1.1 Check if the session was created
-        // 2. Respond with a 200 code and with the session ID as a cookie
-        http_response_code(200); // Mark the response as a success
+        // 2. Respond with the session ID as a cookie
         if (session_id()) {
             $sessionSaverQuery = "INSERT INTO `sessions`(`session_id`, `user_id`) VALUES ('" . session_id() . "','$row[id]')";
             if (!mysqli_query($db, $sessionSaverQuery)) {
@@ -57,7 +57,6 @@ if ($row && $row['is_active'] == 1) {
     throw new Exception("user_not_in_database_or_inactive");
 }
 } catch (\Throwable $th) {
-    http_response_code($_SERVER['REQUEST_METHOD'] === "OPTIONS" ? 200 : 401);
     $response['response'] = "log_in_fail";
     $response['description'] = $th->getMessage();
     $response['code_line'] = $th->getLine();
