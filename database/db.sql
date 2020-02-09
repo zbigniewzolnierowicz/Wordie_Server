@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 17, 2020 at 10:22 PM
+-- Generation Time: Feb 09, 2020 at 02:45 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.1
 
@@ -35,6 +35,17 @@ CREATE TABLE `language` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `session_id` varchar(256) NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `translatedword`
 --
 
@@ -53,12 +64,19 @@ CREATE TABLE `translatedword` (
 
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL,
-  `username` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
   `display_name` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `password_hash` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT NULL,
   `role` varchar(255) COLLATE utf8mb4_polish_ci DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `name`, `display_name`, `is_active`, `password_hash`, `role`) VALUES
+(4, 'aaa', 'Test', 1, '$2y$10$1IXHmxo0WbA3B1ZhNVDxFe3CrkIhfTv9pW157m5IL9TwlQC7O9ou6', 'user');
 
 -- --------------------------------------------------------
 
@@ -112,6 +130,12 @@ ALTER TABLE `language`
   ADD PRIMARY KEY (`languageCode`);
 
 --
+-- Indexes for table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`session_id`);
+
+--
 -- Indexes for table `translatedword`
 --
 ALTER TABLE `translatedword`
@@ -160,7 +184,7 @@ ALTER TABLE `translatedword`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `word`
