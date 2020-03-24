@@ -27,7 +27,7 @@ $row = mysqli_fetch_assoc($data);
 if ($row && $row['is_active'] == 1) {
 // If it is:
     // Check if the password the user sent matches the hashed password stored in the database
-    $isUserPasswordSameAsHashedQuery = "SELECT `id`,`name`, `display_name`, `password_hash` FROM `user` WHERE `id` = '" . $row['id'] . "'";
+    $isUserPasswordSameAsHashedQuery = "SELECT `id`,`name`, `display_name`, `password_hash`, `role` FROM `user` WHERE `id` = '" . $row['id'] . "'";
     $data = mysqli_query($db, $isUserPasswordSameAsHashedQuery);
     $row = mysqli_fetch_assoc($data);
     if (password_verify($password, $row['password_hash'])) {
@@ -44,7 +44,8 @@ if ($row && $row['is_active'] == 1) {
                 $response["response"] = "log_in_success";
                 $response['user_info'] = [
                     'username' => $row['name'],
-                    'display_name' => $row['display_name']
+                    'display_name' => $row['display_name'],
+                    'role' => $row['role']
                 ];
             }
         } else {
