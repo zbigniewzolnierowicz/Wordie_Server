@@ -19,13 +19,23 @@ try {
         if (mysqli_query($db, $updateDisplayNameQuery)) {
             $response['response'] = "display_name_change_success";
         } else {
-            throw new Exception("query_fail");
+            throw new Exception("Could not update the user's display name.", 0);
         }
     } else {
-        throw new Exception("wrong_user_or_not_logged_in");
+        throw new Exception("You're not logged in or are trying to change the display name of someone else.");
     }
 } catch (\Throwable $th) {
-    $response['response'] = "display_name_change_fail";
+    switch ($th->getCode()) {
+        case 0:
+            $response['response'] = "query_fail";
+            break;
+        case 1:
+            $response['response'] = "wrong_user_or_not_logged_in";
+            break;
+        default:
+            $response['response'] = "unknown_error";
+            break;
+    }
     $response['description'] = $th->getMessage();
 } finally {
     echo json_encode($response);

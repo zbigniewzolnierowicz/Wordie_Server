@@ -24,18 +24,31 @@ try {
             $updatedPassword = password_hash($postData['new_password'], PASSWORD_DEFAULT);
             $updatePasswordNameQuery = "UPDATE `user` SET `password_hash` = '$updatedPassword' WHERE `id` = '$data[id]';";
             if (!mysqli_query($db, $updatePasswordNameQuery)) {
-                throw new Exception("query_fail");
+                throw new Exception("query_fail", 0);
             }
             $response['response'] = "password_change_success";
         } else {
-            throw new Exception("wrong_old_password");
+            throw new Exception("Your old password was incorrect.", 1);
         }
     } else {
-        throw new Exception("wrong_user_or_not_logged_in");
+        throw new Exception("You're trying to change the password of the wrong user or are not logged in.", 2);
     }
 } catch (\Throwable $th) {
-    $response['response'] = "password_change_fail";
-    $response['description'] = $updatePasswordNameQuery;
+    switch ($th->getCode()) {
+        case 0:
+            $response['response'] = "query_fail";
+            break;
+        case 1:
+            $response['response'] = "wrong_old_password";
+            break;
+        case 2:
+            $response['response'] = "wrong_user_or_not_logged_in";
+            break;
+        default:
+            $response['response'] = "unknown_error";
+            break;
+    }
+    $response['description'] = $th->getMessage();
 } finally {
     echo json_encode($response);
 }

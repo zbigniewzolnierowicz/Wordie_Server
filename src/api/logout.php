@@ -8,14 +8,14 @@ try {
     if (session_id() != '') { // Check if the session exists
         $deleteSessionQuery = "DELETE FROM `sessions` WHERE `session_id` = '" . session_id() . "';";
         if (!mysqli_query($db, $deleteSessionQuery)) {
-            throw new Exception("could_not_delete_session_from_db");
+            throw new Exception("Could not delete the session from the database.", 0);
         } else {
             $_SESSION = array();
             setcookie(session_name(), "", time() - 86400, "/");
             session_destroy();
             // Check if the session is destroyed
             if (session_id()) {
-                throw new Exception("session_not_destroyed");
+                throw new Exception("Session was not destroyed", 0);
             } else {
                 $response['response'] = "log_out_success";
             }
@@ -24,7 +24,18 @@ try {
         throw new Exception("not_logged_in");
     }
 } catch (\Throwable $th) {
-    $response['response'] = "log_out_fail";
+    switch ($th->getCode()) {
+        case 0:
+            $response['response'] = "could_not_delete_session_from_db";
+            break;
+        case 1:
+            $response['response'] = "session_not_destroyed";
+            break;
+        default:
+            $response['response'] = "unknown_error";
+            break;
+    }
+    $response['code_line'] = $th->getLine();
     $response['description'] = $th->getMessage();
 } finally {
     echo json_encode($response);

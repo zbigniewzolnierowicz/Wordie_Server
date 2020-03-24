@@ -13,7 +13,7 @@ if (isset($postData['username']) && isset($postData['password'])) {
     $username = $postData['username'];
     $password = $postData['password'];
 } else {
-    throw new Exception("no_username_or_password");
+    throw new Exception("Username or password were not provided.", 0);
 }
 // Schema of request: 
 /*
@@ -48,16 +48,32 @@ if ($row && $row['is_active'] == 1) {
                 ];
             }
         } else {
-            throw new Exception("could_not_create_session");
+            throw new Exception("Could not create a session. Try again.", 1);
         }
     } else {
-        throw new Exception("password_not_match");
+        throw new Exception("Wrong password.", 2);
     }
 } else {
-    throw new Exception("user_not_in_database_or_inactive");
+    throw new Exception("The user doesn't exist or was deactivated.", 3);
 }
 } catch (\Throwable $th) {
-    $response['response'] = "log_in_fail";
+    switch ($th->getCode()) {
+        case 0:
+            $response['response'] = "no_username_or_password";
+            break;
+        case 1:
+            $response['response'] = "could_not_create_session";
+            break;
+        case 2:
+            $response['response'] = "password_not_match";
+            break;
+        case 3:
+            $response['response'] = "user_not_in_database_or_inactive";
+            break;
+        default:
+            $response['response'] = "unknown_error";
+            break;
+    }
     $response['description'] = $th->getMessage();
     $response['code_line'] = $th->getLine();
 } finally {

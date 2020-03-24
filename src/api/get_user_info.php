@@ -15,10 +15,20 @@ try {
     if ($data) {
         $response['response'] = "get_user_info_success";
         $response['user_info'] = $data;
+    } else {
+        throw new Exception("User is not logged in or doesn't exist.", 0);
     }
 } catch (\Throwable $th) {
-    $response['response'] = "get_user_info_fail";
+    switch ($th->getCode()) {
+        case 0:
+            $response['response'] = "no_user_or_not_logged_in";
+            break;
+        default:
+            $response['response'] = "unknown_error";
+            break;
+    }
     $response['description'] = $th->getMessage();
+    $response['code_line'] = $th->getLine();
 } finally {
     echo json_encode($response);
 }
