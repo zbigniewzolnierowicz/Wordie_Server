@@ -28,13 +28,10 @@ try {
             case 'PUT':
                 $postData = json_decode(file_get_contents("php://input"), true);
                 $statusQuery = "UPDATE userwordstatistics SET `word_status` = '$postData[word_status]' WHERE user_id = $loginData[id] AND word_id = $postData[id]";
-                if ($result = mysqli_query($db, $statusQuery)) {
-                    $row = mysqli_fetch_assoc($result);
-                    $response['status'] = $row['word_status'];
-                } else {
+                if (!mysqli_query($db, $statusQuery)) {
                     throw new Error("Could not execute query.", 2);
                 }
-                $response['response'] = "get_word_status_success";
+                $response['response'] = "set_word_status_success";
                 break;
             default:
                 throw new Exception("Unsupported request.", 1);
