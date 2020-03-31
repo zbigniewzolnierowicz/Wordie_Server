@@ -44,7 +44,7 @@ try {
                     ) translation_pl
                     ON
                         w.id = translation_pl.word_id
-                    INNER JOIN (
+                    LEFT JOIN (
                         SELECT
                             word_id,
                             word_status
@@ -68,79 +68,93 @@ try {
                 break;
             case 'POST':
                 $postData = json_decode(file_get_contents("php://input"), true);
-                $createInitialWordQuery = "INSERT INTO `word`(`created_by`) VALUES ($data[id])";
                 if (!empty($postData['id'])) {
-                    $getWordQuery = "
-                        SELECT
-                            w.id,
-                            translation_en.translation en,
-                            translation_pl.translation pl,
-                            uws.word_status
-                        FROM
-                            word w
-                        INNER JOIN(
+                    if ($postData['type'] === "delete") {
+                        $postData = json_decode(file_get_contents("php://input"), true);
+                        if (!empty($postData['id'])) {
+                            if (!mysqli_query($db, "DELETE FROM `word` WHERE `id` = $postData[id]")) {
+                                throw new Exception("Word deletion failed.", 4);
+                            }
+                            $response['response'] = "delete_word_success";
+                        }
+                    } else {
+                        $getWordQuery = "
                             SELECT
-                                *
+                                w.id,
+                                translation_en.translation en,
+                                translation_pl.translation pl,
+                                uws.word_status
                             FROM
-                                translatedword
+                                word w
+                            INNER JOIN(
+                                SELECT
+                                    *
+                                FROM
+                                    translatedword
+                                WHERE
+                                    translatedword.languageCode = 'en'
+                            ) translation_en
+                            ON
+                                w.id = translation_en.word_id
+                            INNER JOIN(
+                                SELECT
+                                    *
+                                FROM
+                                    translatedword
+                                WHERE
+                                    translatedword.languageCode = 'pl'
+                            ) translation_pl
+                            ON
+                                w.id = translation_pl.word_id
+                            INNER JOIN (
+                                SELECT
+                                    word_id,
+                                    word_status
+                                FROM
+                                    userwordstatistics
+                                WHERE
+                                    user_id = $data[id]
+                            ) uws
+                            ON
+                                w.id = uws.word_id
                             WHERE
-                                translatedword.languageCode = 'en'
-                        ) translation_en
-                        ON
-                            w.id = translation_en.word_id
-                        INNER JOIN(
-                            SELECT
-                                *
-                            FROM
-                                translatedword
-                            WHERE
-                                translatedword.languageCode = 'pl'
-                        ) translation_pl
-                        ON
-                            w.id = translation_pl.word_id
-                        INNER JOIN (
-                            SELECT
-                                word_id,
-                                word_status
-                            FROM
-                                userwordstatistics
-                            WHERE
-                                user_id = $data[id]
-                        ) uws
-                        ON
-                            w.id = uws.word_id
-                        WHERE
-                            w.id = $postData[id];
-                    ";
-                    $result = mysqli_query($db, $getWordQuery);
-                    if ($word = mysqli_fetch_assoc($result)) {
-                        $response['response'] = "get_word_success";
-                        $response['word'] = $word;
+                                w.id = $postData[id];
+                        ";
+                        $result = mysqli_query($db, $getWordQuery);
+                        if ($word = mysqli_fetch_assoc($result)) {
+                            $response['response'] = "get_word_success";
+                            $response['word'] = $word;
+                        }
                     }
                 } else {
-                    if (mysqli_query($db, $createInitialWordQuery)) {
-                        $id = mysqli_insert_id($db);
-                        $createEnglishTranslation = "INSERT INTO `translatedword`(`word_id`, `translation`, `languageCode`) VALUES ($id,'$postData[translation_en]','en')";
-                        $createPolishTranslation = "INSERT INTO `translatedword`(`word_id`, `translation`, `languageCode`) VALUES ($id,'$postData[translation_pl]','pl')";
-                        if (mysqli_query($db, $createEnglishTranslation) && mysqli_query($db, $createPolishTranslation)) {
-                            $response['response'] = "insert_word_success";
-                            $response['word_id'] = $id;
-                        } else {
-                            throw new Exception("Insertion of the word failed.", 2);
-                        }
+                    $createInitialWordQuery = "INSERT INTO `word`(`created_by`, `category`) VALUES ($data[id], '$postData[category]')";
+                    if (!mysqli_query($db, $createInitialWordQuery)) {
+                        throw new Exception(mysqli_error($db), 2);
+                    }
+                    $id = mysqli_insert_id($db);
+                    $createEnglishTranslation = "INSERT INTO `translatedword`(`word_id`, `translation`, `languageCode`) VALUES ($id,'$postData[translation_en]','en')";
+                    $createPolishTranslation = "INSERT INTO `translatedword`(`word_id`, `translation`, `languageCode`) VALUES ($id,'$postData[translation_pl]','pl')";
+                    if (mysqli_query($db, $createEnglishTranslation) && mysqli_query($db, $createPolishTranslation)) {
+                        $response['response'] = "insert_word_success";
+                        $response['word_id'] = $id;
                     } else {
                         throw new Exception("Insertion of the word failed.", 2);
                     }
-                    $response['word'] = $id;
                 }
                 break;
             case 'PUT':
                 $postData = json_decode(file_get_contents("php://input"), true);
-                $response['query'] = [];
+                if (isset($postData['category'])) {
+                    $catQuery = "UPDATE `word` SET `category` = '$postData[category]' WHERE `id` = $postData[id];";
+                    if (!mysqli_query($db, $catQuery)) {
+                        throw new Exception("Translation word update failed.", 3);
+                    }
+                }
                 if (!empty($postData['id'])) {
                     foreach ($postData['translations'] as $index => $value) {
-                        if (!mysqli_query($db, "UPDATE `translatedword` SET `translation`= '$value[translation]' WHERE `languageCode` = '$value[language]' AND `word_id` = $postData[id]")) {
-                            throw new Exception("Translation update failed.", 3);
+                        $query = "UPDATE `translatedword` SET `translation`= '$value[translation]' WHERE `languageCode` = '$value[language]' AND `word_id` = $postData[id]";
+                        if (!mysqli_query($db, $query)) {
+                            throw new Exception("Translation word update failed.", 3);
                         }
                     }
                     $response['response'] = "update_word_success";
@@ -148,7 +162,6 @@ try {
                 break;
             case 'DELETE':
                 $postData = json_decode(file_get_contents("php://input"), true);
-                $response['query'] = [];
                 if (!empty($postData['id'])) {
                     if (!mysqli_query($db, "DELETE FROM `word` WHERE `id` = $postData[id]")) {
                         throw new Exception("Word deletion failed.", 4);
